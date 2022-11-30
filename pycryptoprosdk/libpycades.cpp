@@ -474,25 +474,25 @@ static PyObject * Verify(PyObject *self, PyObject *args) {
         PyDict_SetItemString(res, "certInfo", GetCertInfo(pVerifyInfo->pSignerCert));
         PyDict_SetItemString(res, "signingTime", FileTimeToPyDateTime(pVerifyInfo->pSigningTime));
 
-        if (pVerifyInfo->dwStatus == 0) {
-            DWORD contentLength = 0;
+        // if (pVerifyInfo->dwStatus == 0) {
+        DWORD contentLength = 0;
 
-            if(!CryptBinaryToString(pContent->pbData, pContent->cbData, CRYPT_STRING_BASE64, NULL, &contentLength)) {
-                CadesFreeVerificationInfo(pVerifyInfo);
-                PyErr_Format(PyExc_ValueError, "CryptBinaryToString #1 failed (error 0x%x).", GetLastError());
-                return NULL;
-            }
-
-            char base64Content[contentLength+1];
-
-            if(!CryptBinaryToString(pContent->pbData, pContent->cbData, CRYPT_STRING_BASE64, base64Content, &contentLength)) {
-                CadesFreeVerificationInfo(pVerifyInfo);
-                PyErr_Format(PyExc_ValueError, "CryptBinaryToString #2 failed (error 0x%x).", GetLastError());
-                return NULL;
-            }
-
-            PyDict_SetItemString(res, "message", PyUnicode_FromString(base64Content));
+        if(!CryptBinaryToString(pContent->pbData, pContent->cbData, CRYPT_STRING_BASE64, NULL, &contentLength)) {
+            CadesFreeVerificationInfo(pVerifyInfo);
+            PyErr_Format(PyExc_ValueError, "CryptBinaryToString #1 failed (error 0x%x).", GetLastError());
+            return NULL;
         }
+
+        char base64Content[contentLength+1];
+
+        if(!CryptBinaryToString(pContent->pbData, pContent->cbData, CRYPT_STRING_BASE64, base64Content, &contentLength)) {
+            CadesFreeVerificationInfo(pVerifyInfo);
+            PyErr_Format(PyExc_ValueError, "CryptBinaryToString #2 failed (error 0x%x).", GetLastError());
+            return NULL;
+        }
+
+        PyDict_SetItemString(res, "message", PyUnicode_FromString(base64Content));
+        // }
 
         CadesFreeVerificationInfo(pVerifyInfo);
     }
